@@ -121,6 +121,14 @@ STORAGE_ENDPOINT=https://your-s3-compatible-endpoint.com
 STORAGE_PUBLIC_URL=https://your-cdn-domain.com
 ```
 
+## Local Storage Configuration
+
+When running without cloud storage, Openinary stores files locally. You can configure the storage path:
+
+```bash
+PUBLIC_DIR=./public  # Default path for local file storage
+```
+
 ## Resources
 
 [Full Documentation](https://docs.openinary.dev) | [Issues](https://github.com/openinary/openinary/issues) | [Contact](https://x.com/initflorian)

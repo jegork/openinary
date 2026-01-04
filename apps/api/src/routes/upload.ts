@@ -8,6 +8,7 @@ import { getCachePath } from "../utils/cache";
 import { videoJobQueue } from "../utils/video-job-queue";
 import { parseParams } from "../utils/parser";
 import { THUMBNAIL_PRIORITY } from "../utils/video/config";
+import { PUBLIC_DIR } from "../utils/paths";
 
 const upload = new Hono();
 const storage = createStorageClient();
@@ -87,10 +88,10 @@ function getContentType(filename: string): string {
 }
 
 /**
- * Saves file to local storage (./public/)
+ * Saves file to local storage
  */
 async function saveFileLocally(filePath: string, buffer: Buffer): Promise<void> {
-  const fullPath = path.join("./public", filePath);
+  const fullPath = path.join(PUBLIC_DIR, filePath);
   const dir = path.dirname(fullPath);
   
   // Create parent directories if they don't exist
@@ -102,7 +103,7 @@ async function saveFileLocally(filePath: string, buffer: Buffer): Promise<void> 
 }
 
 async function localFileExists(filePath: string): Promise<boolean> {
-  const fullPath = path.join("./public", filePath);
+  const fullPath = path.join(PUBLIC_DIR, filePath);
   return fs.existsSync(fullPath);
 }
 
@@ -119,9 +120,9 @@ async function queueThumbnailGeneration(filePath: string, storage: ReturnType<ty
     const cachePath = getCachePath(transformPath);
 
     // Get source path
-    const sourcePath = storage 
-      ? `./temp/${path.basename(filePath)}` 
-      : path.join("./public", filePath);
+    const sourcePath = storage
+      ? `./temp/${path.basename(filePath)}`
+      : path.join(PUBLIC_DIR, filePath);
 
     // Add to queue with HIGH priority for thumbnails
     const jobId = await videoJobQueue.addJob(

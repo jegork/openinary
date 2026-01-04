@@ -21,6 +21,7 @@ import {
   determineContentType,
 } from "./transform-helpers";
 import { THUMBNAIL_PRIORITY, TRANSFORMATION_PRIORITY } from "../utils/video/config";
+import { PUBLIC_DIR } from "../utils/paths";
 
 const t = new Hono();
 const storage = createStorageClient();
@@ -45,7 +46,7 @@ t.get("/*", async (c) => {
   const filePath = fileSegments.join("/");
 
   let cachePath = getCachePath(path);
-  const localPath = `./public/${filePath}`;
+  const localPath = `${PUBLIC_DIR}/${filePath}`;
   const ext = filePath.split(".").pop();
 
   // Get browser support info for format optimization

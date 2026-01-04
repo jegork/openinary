@@ -12,6 +12,7 @@ import {
   type VideoJob,
 } from "./queue-db";
 import { MAX_CONCURRENT_JOBS, WORKER_POLL_INTERVAL_MS } from "./config";
+import { PUBLIC_DIR } from "../paths";
 
 export interface WorkerEvents {
   "job:created": (job: VideoJob) => void;
@@ -139,7 +140,7 @@ export class VideoWorker extends EventEmitter {
         const params = JSON.parse(job.params_json);
 
         // Download source file if using cloud storage
-        let sourcePath = `./public/${job.file_path}`;
+        let sourcePath = `${PUBLIC_DIR}/${job.file_path}`;
         if (this.storage) {
           try {
             const fs = await import('fs/promises');
