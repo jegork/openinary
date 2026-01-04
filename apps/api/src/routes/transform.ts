@@ -7,6 +7,7 @@ import logger from "../utils/logger";
 import { videoJobQueue } from "../utils/video-job-queue";
 import { updateJobStatus } from "../utils/video/queue-db";
 import { readFile } from "fs/promises";
+import { join as pathJoin } from "path";
 import {
   setContentTypeHeader,
   checkCloudCache,
@@ -46,7 +47,7 @@ t.get("/*", async (c) => {
   const filePath = fileSegments.join("/");
 
   let cachePath = getCachePath(path);
-  const localPath = `${PUBLIC_DIR}/${filePath}`;
+  const localPath = pathJoin(PUBLIC_DIR, filePath);
   const ext = filePath.split(".").pop();
 
   // Get browser support info for format optimization
