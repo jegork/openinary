@@ -3,6 +3,7 @@ import { StorageCache } from './cache';
 import { KeyGenerator } from './key-generator';
 import { S3ClientWrapper } from './s3-client';
 import logger from '../logger';
+import { STORAGE_PREFIX } from '../paths';
 
 export class CloudStorage {
   private s3Client: S3ClientWrapper;
@@ -56,7 +57,7 @@ export class CloudStorage {
    * Used after deletion to ensure we don't serve stale cache data
    */
   async existsOriginalNoCache(originalPath: string): Promise<boolean> {
-    const storageKey = `public/${originalPath}`;
+    const storageKey = `${STORAGE_PREFIX}${originalPath}`;
     try {
       const exists = await this.s3Client.objectExists(storageKey);
       
@@ -93,7 +94,7 @@ export class CloudStorage {
       return cached.exists;
     }
 
-    const storageKey = `public/${filePath}`;
+    const storageKey = `${STORAGE_PREFIX}${filePath}`;
     try {
       const exists = await this.s3Client.objectExists(storageKey);
 
@@ -125,8 +126,7 @@ export class CloudStorage {
    * Retrieves an original (unprocessed) file from the bucket
    */
   async downloadOriginal(originalPath: string): Promise<Buffer> {
-    // Add public/ prefix for storage
-    const storageKey = `public/${originalPath}`;
+    const storageKey = `${STORAGE_PREFIX}${originalPath}`;
     return await this.s3Client.downloadObject(storageKey);
   }
 
@@ -134,8 +134,7 @@ export class CloudStorage {
    * Uploads an original (unprocessed) file to the bucket
    */
   async uploadOriginal(filePath: string, buffer: Buffer, contentType: string): Promise<string> {
-    // Add public/ prefix for storage
-    const storageKey = `public/${filePath}`;
+    const storageKey = `${STORAGE_PREFIX}${filePath}`;
     await this.s3Client.uploadObject(storageKey, buffer, contentType);
 
     // Mark the file as existing in the cache
@@ -190,8 +189,7 @@ export class CloudStorage {
    * Deletes an original file from storage
    */
   async deleteOriginal(originalPath: string): Promise<void> {
-    // Add public/ prefix for storage
-    const storageKey = `public/${originalPath}`;
+    const storageKey = `${STORAGE_PREFIX}${originalPath}`;
     await this.s3Client.deleteObject(storageKey);
     
     // Invalidate cache
@@ -202,7 +200,7 @@ export class CloudStorage {
    * Gets metadata for an original file (size, dates)
    */
   async getOriginalMetadata(originalPath: string): Promise<{ size: number; createdAt: Date; updatedAt: Date } | null> {
-    const storageKey = `public/${originalPath}`;
+    const storageKey = `${STORAGE_PREFIX}${originalPath}`;
     const metadata = await this.s3Client.getObjectMetadata(storageKey);
     
     if (!metadata) {

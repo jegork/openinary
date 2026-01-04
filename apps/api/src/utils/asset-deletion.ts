@@ -4,6 +4,7 @@ import logger from './logger';
 import { CloudStorage } from './storage/cloud-storage';
 import { deleteCachedFiles } from './cache';
 import { deleteJobsByFilePath } from './video/queue-db';
+import { PUBLIC_DIR } from './paths';
 
 export interface DeleteAssetResult {
   success: boolean;
@@ -40,7 +41,7 @@ export async function deleteAssetCompletely(
     if (storage) {
       fileExists = await storage.existsOriginal(filePath);
     } else {
-      const localPath = path.join('.', 'public', filePath);
+      const localPath = path.join(PUBLIC_DIR, filePath);
       fileExists = fs.existsSync(localPath);
     }
 
@@ -94,8 +95,8 @@ export async function deleteAssetCompletely(
     } else {
       // Delete from local storage
       try {
-        const localPath = path.join('.', 'public', filePath);
-        
+        const localPath = path.join(PUBLIC_DIR, filePath);
+
         const stats = fs.statSync(localPath);
         if (stats.isDirectory()) {
           const errorMsg = 'Cannot delete directories';

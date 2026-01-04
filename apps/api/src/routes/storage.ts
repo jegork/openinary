@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import logger from "../utils/logger";
 import { deleteAssetCompletely } from "../utils/asset-deletion";
+import { PUBLIC_DIR, STORAGE_PREFIX } from "../utils/paths";
 
 type StorageNode = {
   name: string;
@@ -140,21 +141,21 @@ storageRoute.get("/", async (c) => {
     let root: StorageNode;
 
     if (storageClient) {
-      // List only objects in the public/ folder
-      const objects = await storageClient.list("public/");
-      
-      // Remove the public/ prefix from all keys
+      // List objects with configured prefix
+      const objects = await storageClient.list(STORAGE_PREFIX);
+
+      // Remove the prefix from all keys
+      const prefixLength = STORAGE_PREFIX.length;
       const publicObjects = objects
-        .filter(obj => obj.key.startsWith("public/"))
+        .filter(obj => !STORAGE_PREFIX || obj.key.startsWith(STORAGE_PREFIX))
         .map(obj => ({
           ...obj,
-          key: obj.key.substring(7) // Remove "public/" prefix (7 characters)
+          key: prefixLength ? obj.key.substring(prefixLength) : obj.key
         }));
-      
+
       root = buildTreeFromKeys(publicObjects);
     } else {
-      const publicDir = path.join(".", "public");
-      root = buildLocalTree(publicDir);
+      root = buildLocalTree(PUBLIC_DIR);
     }
 
     const treeData = storageTreeToTreeData(root);
@@ -227,8 +228,8 @@ storageRoute.get("/*", async (c) => {
         updatedAt: metadata.updatedAt.toISOString(),
       });
     } else {
-      const localPath = path.join(".", "public", filePath);
-      
+      const localPath = path.join(PUBLIC_DIR, filePath);
+
       if (!fs.existsSync(localPath)) {
         return c.json(
           {
